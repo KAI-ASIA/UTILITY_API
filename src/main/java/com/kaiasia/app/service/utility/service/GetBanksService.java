@@ -48,7 +48,7 @@ public class GetBanksService {
             ApiBody body = new ApiBody();
 
             // Call T2408 api
-            T24BankListResponse t2408Response = cacheService.callT2408(requestData.getBankCode(), location, request.getHeader());
+            T24BankListResponse t2408Response = cacheService.beforeCallT2408(requestData.getBankCode(), location, request.getHeader());
             log.warn("#{}", t2408Response.getBanks());
 
             error = t2408Response.getError();
