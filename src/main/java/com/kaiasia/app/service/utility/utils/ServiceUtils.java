@@ -1,7 +1,6 @@
 package com.kaiasia.app.service.utility.utils;
 
 import com.kaiasia.app.core.utils.GetErrorUtils;
-import com.kaiasia.app.service.utility.model.response.BaseResponse;
 import ms.apiclient.model.ApiBody;
 import ms.apiclient.model.ApiError;
 import ms.apiclient.model.ApiRequest;
@@ -95,32 +94,6 @@ public class ServiceUtils {
         } catch (IllegalArgumentException e) {
             return apiErrorUtils.getError("600", new String[]{"Invalid request body format"});
         }
-    }
-
-    /**
-     * Kiểm tra tính hợp lệ của 1 đối tượng dựa trên một chuẩn được chỉ định, đảm bảo cấu trúc và nội dung của nó tuân thủ các ràng buộc đã định nghĩa.
-     *
-     * @param <T>           Kiểu của đối tượng cần kiểm tra.
-     * @param groups Chuẩn đối chiếu validate.
-     * @return Trả về đối tượng BaseResponse, chứa mã lỗi và mô tả lỗi nếu không hợp lệ; ngược lại trả về mã 000 nếu hợp lệ.
-     * @since 1.0
-     * @author Phạm Huy Hoàng
-     */
-    public static <T> BaseResponse validate(T input, Class<?>... groups) {
-            Set<ConstraintViolation<T>> violations = validator.validate(input, groups);
-            if (!violations.isEmpty()) {
-                String errorMessage = violations.stream()
-                                                .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
-                                                .collect(Collectors.joining(", "));
-                return BaseResponse.builder()
-                                   .code("804")
-                                   .desc("Validation failed: " + errorMessage)
-                                   .build();
-            }
-            return BaseResponse.builder()
-                               .code("000")
-                               .desc("OK")
-                               .build();
     }
 
 }

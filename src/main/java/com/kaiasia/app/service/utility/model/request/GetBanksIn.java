@@ -1,7 +1,7 @@
 package com.kaiasia.app.service.utility.model.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.kaiasia.app.service.utility.model.validation.FundsTransferOptional;
+import com.kaiasia.app.service.utility.model.validation.GetBankInRequired;
 import lombok.*;
 import javax.validation.constraints.*;
 
@@ -15,7 +15,7 @@ import javax.validation.constraints.*;
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GetBanksIn {
-    @NotBlank(message = "Authentication type is required", groups = FundsTransferOptional.class)
+    @NotBlank(message = "Authentication type is required", groups = GetBankInRequired.class)
     private String authenType;
 
     private String bankCode;

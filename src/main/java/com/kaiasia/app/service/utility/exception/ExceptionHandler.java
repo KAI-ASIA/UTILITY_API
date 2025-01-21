@@ -42,18 +42,6 @@ public class ExceptionHandler {
     private ApiError exceptionResolver(Exception e, String location) {
         log.error("{}:{}", location, e.getMessage());
         ApiError error;
-        if (e instanceof InsertFailedException) {
-            error = getErrorUtils.getError(ApiErrorCode.FAILED_TO_INSERT_TO_DB, new String[]{e.getMessage()});
-            return error;
-        }
-        if (e instanceof UpdateFailedException) {
-            error = getErrorUtils.getError(ApiErrorCode.FAILED_TO_UPDATE_TO_DB, new String[]{e.getMessage()});
-            return error;
-        }
-        if (e instanceof RestClientException) {
-            error = getErrorUtils.getError(ApiErrorCode.FAILED_TO_CALL_API, new String[]{e.getMessage()});
-            return error;
-        }
         if (e instanceof MapperException) {
             error = getErrorUtils.getError("600", new String[]{e.getMessage()});
             return error;

@@ -1,7 +1,7 @@
 server:
   servlet:
     contextPath: /UTILITY_API
-  port: 8025
+  port: 8073
 kai:
   name: UTILITY_API
   key: utilityc4anh7v3a
@@ -28,7 +28,11 @@ spring:
   application:
     name: KAIASIA_UTILITY_API
   config:
-    import: optional:file:application.yml
+    async:
+      core-pool-size: 10
+      max-pool-size: 30
+      queue-capacity: 70
+      idleTimeout: 600000
   database:
     postgres: true
   postgredatasource:
@@ -42,6 +46,18 @@ spring:
   jpa:
     show-sql: false
     open-in-view: false
+  redis:
+    host: 14.225.254.212
+    #host: localhost
+    port: 6379
+    timeout: 60000
+    time-to-live: 3
+    key-list-banks: "bank:all"
+    lettuce:
+      pool:
+        max-active: 7 #max kết nối
+        max-idle: 3 #max kết nối rảnh
+        min-idle: 1 #min kết nối auto hoạt động
 #eureka:
 #  client:
 #    service-url:
