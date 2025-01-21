@@ -5,19 +5,20 @@ import com.kaiasia.app.register.KaiMethod;
 import com.kaiasia.app.register.KaiService;
 import com.kaiasia.app.register.Register;
 import com.kaiasia.app.service.utility.exception.ExceptionHandler;
-import com.kaiasia.app.service.utility.model.response.BaseResponse;
-import com.kaiasia.app.service.utility.model.response.FundsTransferOut;
 import com.kaiasia.app.service.utility.model.request.GetBanksIn;
-import com.kaiasia.app.service.utility.model.validation.FundsTransferOptional;
-import com.kaiasia.app.service.utility.model.validation.SuccessGroup;
+import com.kaiasia.app.service.utility.model.validation.GetBankInRequired;
 import com.kaiasia.app.service.utility.utils.ObjectAndJsonUtils;
 import com.kaiasia.app.service.utility.utils.ServiceUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ms.apiclient.model.*;
-import ms.apiclient.t24util.T24FundTransferResponse;
+import ms.apiclient.t24util.T24BankListResponse;
 import ms.apiclient.t24util.T24Request;
 import ms.apiclient.t24util.T24UtilClient;
+import org.springframework.cache.annotation.Cacheable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @KaiService
 @Slf4j
@@ -25,14 +26,14 @@ import ms.apiclient.t24util.T24UtilClient;
 public class GetBanksService {
     private final GetErrorUtils apiErrorUtils;
     private final ExceptionHandler exceptionHandler;
-    private final T24UtilClient t24UtilClient;
+    private final CacheService cacheService;
 
-    @KaiMethod(name = "FTInsideService", type = Register.VALIDATE)
+    @KaiMethod(name = "KAI.API.BANKS", type = Register.VALIDATE)
     public ApiError validate(ApiRequest req) {
-        return ServiceUtils.validate(req, GetBanksIn.class, apiErrorUtils, "TRANSACTION", FundsTransferOptional.class);
+        return ServiceUtils.validate(req, GetBanksIn.class, apiErrorUtils, "ENQUIRY", GetBankInRequired.class);
     }
 
-    @KaiMethod(name = "FTInsideService")
+    @KaiMethod(name = "KAI.API.BANKS")
     public ApiResponse process(ApiRequest req) throws Exception {
         GetBanksIn requestData = ObjectAndJsonUtils.fromObject(req
                 .getBody()
@@ -46,34 +47,24 @@ public class GetBanksService {
             ApiError error = new ApiError();
             ApiBody body = new ApiBody();
 
-            // Call T2405 api
-                T24FundTransferResponse t2405Response = t24UtilClient.fundTransfer(location,
-                        T24Request.builder()
-                                  .bankId(requestData.getBankCode())
-                                  .build(),
-                        request.getHeader());
+            // Call T2408 api
+            T24BankListResponse t2408Response = cacheService.callT2408(requestData.getBankCode(), location, request.getHeader());
+            log.warn("#{}", t2408Response.getBanks());
 
-            log.warn("#{}{}", t2405Response.getTransactionNO(), t2405Response.getResponseCode());
-
-            error = t2405Response.getError();
-            if (error != null) {
-                log.error("#{}:{}", location + "#After call T2405", error);
+            error = t2408Response.getError();
+            if (!ApiError.OK_CODE.equals(error.getCode())) {
+                log.error("#{}:{}", location + "#After call T2408", error);
                 response.setError(error);
                 return response;
             }
 
-            // Kiểm tra kết quả trả về đủ field không.
-            BaseResponse validateT2505Error = ServiceUtils.validate(ObjectAndJsonUtils.fromObject(t2405Response, FundsTransferOut.class), SuccessGroup.class);
-            if (!validateT2505Error.getCode().equals(ApiError.OK_CODE)) {
-                log.error("#{}:{}", location + "#After call T2405", validateT2505Error);
-                response.setError(new ApiError(validateT2505Error.getCode(), validateT2505Error.getDesc()));
-                return response;
-            }
-
             header.setReqType("RESPONSE");
-            body.put("transaction", t2405Response);
+            Map<String, Object> listBanks = new HashMap<>();
+            listBanks.put("banks", t2408Response.getBanks());
+            body.put("enquiry", listBanks);
             response.setBody(body);
             return response;
         }, req, "#GetBanksService/" + "/" + System.currentTimeMillis());
     }
+
 }

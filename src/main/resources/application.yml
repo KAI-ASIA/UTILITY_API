@@ -1,7 +1,7 @@
 server:
   servlet:
     contextPath: /UTILITY_API
-  port: 8025
+  port: 8073
 kai:
   name: UTILITY_API
   key: utilityc4anh7v3a
@@ -42,6 +42,15 @@ spring:
   jpa:
     show-sql: false
     open-in-view: false
+  redis:
+    host: 14.225.254.212
+    port: 6379
+    timeout: 60000
+    lettuce:
+      pool:
+        max-active: 7 #max kết nối
+        max-idle: 3 #max kết nối rảnh
+        min-idle: 1 #min kết nối auto hoạt động
 #eureka:
 #  client:
 #    service-url:
