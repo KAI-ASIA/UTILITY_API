@@ -79,31 +79,31 @@ public class CacheService {
 
     public T24BankListResponse callT2408(String bankCode, String location, ApiHeader header) {
         log.info("#Calling T2408 API for bankCode: {}", bankCode);
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        List<Bank> bankList = new ArrayList<>();
-        Bank bank1 = new Bank();
-        bank1.setBankCode("300");
-        bank1.setBankName("Seabank");
-        bank1.setStatus("ACTIVE");
-        bankList.add(bank1);
-        if("".equals(bankCode)) {
-            Bank bank2 = new Bank();
-            bank2.setBankCode("999");
-            bank2.setBankName("BIDV");
-            bank2.setStatus("ACTIVE");
-            bankList.add(bank2);
-        }
-        T24BankListResponse response = new T24BankListResponse();
-//        T24BankListResponse response = t24UtilClient.getBankList(location,
-//                T24Request.builder()
-//                          .bankCode(bankCode)
-//                          .build(),
-//                header);
-        response.setBanks(bankList);
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        List<Bank> bankList = new ArrayList<>();
+//        Bank bank1 = new Bank();
+//        bank1.setBankCode("300");
+//        bank1.setBankName("Seabank");
+//        bank1.setStatus("ACTIVE");
+//        bankList.add(bank1);
+//        if("".equals(bankCode)) {
+//            Bank bank2 = new Bank();
+//            bank2.setBankCode("999");
+//            bank2.setBankName("BIDV");
+//            bank2.setStatus("ACTIVE");
+//            bankList.add(bank2);
+//        }
+//        T24BankListResponse response = new T24BankListResponse();
+        T24BankListResponse response = t24UtilClient.getBankList(location,
+                T24Request.builder()
+                          .bankCode(bankCode)
+                          .build(),
+                header);
+//        response.setBanks(bankList);
         asyncTask.asyncSaveToRedis(response.getBanks(), bankCode.isEmpty() ? keyBanks : keyPrefix + bankCode);
         return response;
     }
